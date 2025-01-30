@@ -8,7 +8,7 @@ MAP = [
     'w                 w',
     'w                 w',
     'w                 w',
-    'w                ew',
+    'w                 w',
     'wwwwwwwwwwwwwwwwwww',
 ]
 MAP2 = ['wwwwwwwwwwwwwwwwwww',
