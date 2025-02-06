@@ -1,4 +1,4 @@
-
+import random as rd
 import pygame
 import os
 import sys
@@ -26,7 +26,7 @@ def load_image(name, colorkey=None):
     return image
 
 
-class Player(pygame.sprite.Sprite):
+class Player:
     player = load_image("player.png", colorkey=-1)
     step1 = load_image('player_step1.png', colorkey=-1)
     step2 = load_image('player_step2.png', colorkey=-1)
@@ -41,6 +41,7 @@ class Player(pygame.sprite.Sprite):
         self.cnt = 0
         self.x_vector = 0
         self.y_vector = 0
+        self.angle = 0
     def update(self, *args):
         self.x_vector = 0
         self.y_vector = 0
@@ -61,7 +62,6 @@ class Player(pygame.sprite.Sprite):
             self.y_vector = 1
             self.player = pygame.transform.rotate(self.image, 0)
             self.angle = 0
-        print(self.x_vector, self.x_vector)
         if self.x_vector or self.y_vector:
             return [args[0], args[1]]
         return False
@@ -75,5 +75,27 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += 5 * self.y_vector
         clock.tick(10)
 
-class Button(pygame.sprite.Sprite):
-    pass
+
+class Button:
+    def __init__(self, wigth, height, position, color, focus_color=0):
+        self.wight = wigth
+        self.height = height
+        self.position = position
+        self.is_focus = False
+        self.color = color
+        self.focus_color = focus_color
+    def render(self, surf):
+        if self.is_focus:
+            pygame.draw.rect(surf, self.focus_color,(self.position[0], self.position[1], self.wight, self.height))
+        else:
+            pygame.draw.rect(surf, self.color,(self.position[0], self.position[1], self.wight, self.height))
+    def focus(self):
+        pos = pygame.mouse.get_pos()
+        if pygame.Rect(self.position[0], self.position[1], self.wight, self.height).collidepoint(pos):
+            self.is_focus = True
+        else:
+            self.is_focus = False
+
+    def flag_click(self, pos):
+        print(pos)
+        return pygame.Rect(self.position[0], self.position[1], self.wight, self.height).collidepoint(pos)
