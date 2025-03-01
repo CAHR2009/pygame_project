@@ -1,18 +1,14 @@
-from os.path import split
-
-import pygame
-
 from classes import *
 
 
-
+# Функция старта игры с заданием базовых настроек
 def start_game():
     global player, running, battle, playing, lose_window, win_window, settings, \
         nastroiki, zastv, zast, win, current_map, multipiler, board, spec, en, move, maps, boss_battle, main_window
     board = Playing_field()
     spec = Specifications()
     multipiler = 1
-    current_map = 4
+    current_map = 0
     maps = [i.copy() for i in MAPS.copy()]
     en = Enemy(maps[current_map], current_map + 1, multipiler)
     player = Player(board.x_pos, board.y_pos, board.cletca)
@@ -20,6 +16,8 @@ def start_game():
     running = True
     move = []
 
+
+# Функция возврата из настрое в окно из которого его открыли
 def menu():
     global window, main_window
     window = spec.click((position[0], position[1] - 750))
@@ -31,7 +29,9 @@ def menu():
             main_window = 'Zastv'
             start_game()
 
+
 if __name__ == '__main__':
+    # Задание классов и настроек экрана
     size = width, height = 1500, 1000
     screen = pygame.display.set_mode(size)
     fps = 60
@@ -40,11 +40,13 @@ if __name__ == '__main__':
     login = Login()
     clock = pygame.time.Clock()
     start_game()
+    # Основной цикл
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
+                # Проверка нажатий мышки для каждого класса
                 position = event.pos
                 if main_window == 'Zastv':
                     window = zast.open_window(position)
@@ -76,7 +78,8 @@ if __name__ == '__main__':
                 elif main_window == 'Play':
                     x, y = int(position[0] / board.cletca), int(position[1] / board.cletca)
                     if board.focus and not move:
-                        move = player.update(maps[current_map], x, y, board.cletca, board.x_pos, board.y_pos, board.plaing_surf)
+                        move = player.update(maps[current_map], x, y, board.cletca, board.x_pos, board.y_pos,
+                                             board.plaing_surf)
                         if move and en.battle_flag(x, y):
                             main_window = 'Battle'
                             bt = Battle(en.enemy_spic[x, y], False)
@@ -94,6 +97,7 @@ if __name__ == '__main__':
                     start_game()
                 elif main_window == 'Login':
                     login.login_input(event)
+        # рендер окон
         if main_window == 'Zastv':
             zast.render(screen)
         elif main_window == 'Settings':
@@ -103,7 +107,7 @@ if __name__ == '__main__':
             bt.player_move()
             bt.enemy_shot(nastroiki.misic)
             spec.render()
-            bt.render(spec.item_surf, spec.player_spec, False)
+            bt.render(spec.item_surf, spec.player_spec, False, nastroiki.misic)
             screen.blit(bt.battle_field, (0, 0))
             screen.blit(spec.item_surf, (0, 750))
             if bt.end() == 1:
@@ -118,8 +122,8 @@ if __name__ == '__main__':
             spec.render()
             board.level_render(board.plaing_surf, maps[current_map], en.enemy_spic)
             spec.enemy_render(en.enemy_spic, pygame.mouse.get_pos(), board.cletca, board.x_pos, board.y_pos,
-                                     board.visibility)
-            if board.focus and not(move):
+                              board.visibility)
+            if board.focus and not (move):
                 board.focus_click(maps[current_map])
             if move:
                 player.move()
@@ -142,7 +146,7 @@ if __name__ == '__main__':
             screen.blit(spec.item_surf, (0, 750))
             screen.blit(player.player, player.rect)
         elif main_window == 'Lose':
-            Lose(screen)
+            Lose(screen, nastroiki.misic)
             login.save_score(spec.player_spec[3])
         elif main_window == 'Win':
             win.render(screen)

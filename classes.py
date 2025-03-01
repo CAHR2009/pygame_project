@@ -16,8 +16,7 @@ pygame.mixer.init()
 clock = pygame.time.Clock()
 
 
-
-
+# Загрузка каринок
 def load_image(name, colorkey=None):
     fullname = os.path.join('sprites', name)
     image = pygame.image.load(fullname)
@@ -31,6 +30,7 @@ def load_image(name, colorkey=None):
     return image
 
 
+# Класс игрока
 class Player:
     player = load_image("player.png", colorkey=-1)
     step1 = load_image('player_step1.png', colorkey=-1)
@@ -46,6 +46,7 @@ class Player:
         self.y_vector = 0
         self.angle = 0
 
+    # Движение игрока
     def update(self, map, *args):
         self.x_vector = 0
         self.y_vector = 0
@@ -74,6 +75,7 @@ class Player:
             return [args[0], args[1]]
         return False
 
+    # Анимация перемещения игрока
     def move(self):
         spic = [self.step1, self.step2]
         if self.cnt > 1:
@@ -85,6 +87,7 @@ class Player:
         clock.tick(10)
 
 
+# Класс кнопки
 class Button:
     def __init__(self, wigth, height, position, color, focus_color=0):
         self.wight = wigth
@@ -94,48 +97,60 @@ class Button:
         self.color = color
         self.focus_color = focus_color
 
+    # Рендер кнопки
     def render(self, surf):
         if self.is_focus:
             pygame.draw.rect(surf, self.focus_color, (self.position[0], self.position[1], self.wight, self.height))
         else:
             pygame.draw.rect(surf, self.color, (self.position[0], self.position[1], self.wight, self.height))
 
+    # Проверка наведена ли мышка на кнопку
     def focus(self, pos):
         if pygame.Rect(self.position[0], self.position[1], self.wight, self.height).collidepoint(pos):
             self.is_focus = True
         else:
             self.is_focus = False
 
+    # Проверка клика кнопки
     def flag_click(self, pos):
         return pygame.Rect(self.position[0], self.position[1], self.wight, self.height).collidepoint(pos)
 
 
+# Класс заствки
 class Zastavka:
     background = load_image('background.png')
 
     def __init__(self):
-            self.buttons_list = {'Play': Button(400, 100, (550, 400), (16, 124, 42), 'green'),
-                             'Settings': Button(400, 100, (550, 550), (16, 124, 42), 'green'),
-                             'Exit': Button(400, 100, (550, 700), (16, 124, 42), 'green'),
-                             'Login': Button(250, 100, (1090, 100), 'grey', (80, 80, 80))}
+        self.buttons_list = {'Play': Button(400, 100, (550, 400),
+                                            (16, 124, 42), 'green'),
 
+                             'Settings': Button(400, 100, (550, 550),
+                                                (16, 124, 42), 'green'),
 
+                             'Exit': Button(400, 100, (550, 700),
+                                            (16, 124, 42), 'green'),
 
+                             'Login': Button(250, 100, (1090, 100),
+                                             'grey', (80, 80, 80))}
+
+    # Рендер заставки
     def render(self, screen):
         font = pygame.font.Font(None, 100)
         screen.blit(self.background, (0, 0))
         for key, button in self.buttons_list.items():
             button.focus(pygame.mouse.get_pos())
             button.render(screen)
-            screen.blit(font.render(key, 1, pygame.Color('white')), (button.position[0] + 20, button.position[1] + 20))
+            screen.blit(font.render(key, 1, pygame.Color('white')), (button.position[0] + 20,
+                                                                     button.position[1] + 20))
 
+    # Открытие нужного окна по нажатию мышки
     def open_window(self, pos):
         for key, button in self.buttons_list.items():
             if button.flag_click(pos):
                 return key
 
 
-
+# Класс настрек
 class Settings:
     background = load_image('background.png')
 
@@ -149,6 +164,7 @@ class Settings:
         self.background_music.play(-1)
         self.background_music.set_volume(0.2)
 
+    # Рендер класса настроек
     def render(self, screen):
         font = pygame.font.Font(None, 100)
         screen.blit(self.background, (0, 0))
@@ -158,6 +174,7 @@ class Settings:
         screen.blit(font.render('Music:', 1, pygame.Color('black')), (400, 420))
         screen.blit(font.render('Back', 1, pygame.Color('black')), (1300, 900))
 
+    # Включение или выключчение музыки
     def off_on_click(self, pos):
         colot_list = {1: 'green',
                       0: 'red'}
@@ -172,12 +189,15 @@ class Settings:
             self.on_off_button = Button(100, 100, (650, 400), colot_list[self.color])
             self.misic = not self.misic
 
+    # Выход из настроек
     def exit(self, pos):
         if self.exit_button.flag_click(pos):
             return self.exit_to
         else:
             return False
 
+
+# Класс об характеристиках игрока и его противников
 class Specifications:
     def __init__(self):
         self.items = []
@@ -186,6 +206,7 @@ class Specifications:
         self.menu_button = Button(150, 50, (1150, 10), (16, 124, 42), 'green')
         self.settings_button = Button(150, 50, (1150, 70), (16, 124, 42), 'green')
 
+    # Рендкр класса
     def render(self):
         self.item_surf.fill((0, 0, 0))
         font = pygame.font.Font(None, 40)
@@ -200,15 +221,25 @@ class Specifications:
         font = pygame.font.Font(None, 30)
         self.item_surf.blit(font.render('YOU:', 1, pygame.Color('green')), (30, 30))
         if self.player_spec[0] > 50:
-            self.item_surf.blit(font.render(f'HP: {self.player_spec[0]}', 1, pygame.Color('green')), (30, 60))
+            self.item_surf.blit(font.render(f'HP: {self.player_spec[0]}', 1,
+                                            pygame.Color('green')), (30, 60))
         elif 20 < self.player_spec[0] < 50:
-            self.item_surf.blit(font.render(f'HP: {self.player_spec[0]}', 1, pygame.Color('orange')), (30, 60))
+            self.item_surf.blit(font.render(f'HP: {self.player_spec[0]}', 1,
+                                            pygame.Color('orange')), (30, 60))
         else:
-            self.item_surf.blit(font.render(f'HP: {self.player_spec[0]}', 1, pygame.Color('red')), (30, 60))
-        self.item_surf.blit(font.render(f'ARMOR: {self.player_spec[1]}', 1, pygame.Color('grey')), (30, 90))
-        self.item_surf.blit(font.render(f'ATTACK: {self.player_spec[2]}', 1, pygame.Color('yellow')), (30, 120))
-        self.item_surf.blit(font.render(f'SCORE: {self.player_spec[3]}', 1, pygame.Color('white')), (750, 30))
+            self.item_surf.blit(font.render(f'HP: {self.player_spec[0]}', 1,
+                                            pygame.Color('red')), (30, 60))
 
+        self.item_surf.blit(font.render(f'ARMOR: {self.player_spec[1]}', 1,
+                                        pygame.Color('grey')), (30, 90))
+
+        self.item_surf.blit(font.render(f'ATTACK: {self.player_spec[2]}', 1,
+                                        pygame.Color('yellow')), (30, 120))
+
+        self.item_surf.blit(font.render(f'SCORE: {self.player_spec[3]}', 1,
+                                        pygame.Color('white')), (750, 30))
+
+    # Рендер хараетристик противника при наведение на него мышки или в бою
     def enemy_render(self, enemies, pos, cletca, player_x, player_y, vis):
         font = pygame.font.Font(None, 30)
         x, y = int(pos[0] / cletca), int(pos[1] / cletca)
@@ -216,19 +247,28 @@ class Specifications:
                 and y in range(player_y - vis, player_y + vis + 1)):
             self.item_surf.blit(font.render('ENEMY:', 1, pygame.Color('red')), (430, 30))
             if 'EYE' in self.items:
-                self.item_surf.blit(font.render(f'HP:{enemies[x, y][0]}', 1, pygame.Color('red')), (430, 60))
-                self.item_surf.blit(font.render(f'ARMOR:{enemies[x, y][1]}', 1, pygame.Color('red')), (430, 90))
-                self.item_surf.blit(font.render(f'ATTACK:{enemies[x, y][2]}', 1, pygame.Color('red')), (430, 120))
+                self.item_surf.blit(font.render(f'HP:{enemies[x, y][0]}', 1,
+                                                pygame.Color('red')), (430, 60))
+
+                self.item_surf.blit(font.render(f'ARMOR:{enemies[x, y][1]}', 1,
+                                                pygame.Color('red')), (430, 90))
+
+                self.item_surf.blit(font.render(f'ATTACK:{enemies[x, y][2]}', 1,
+                                                pygame.Color('red')), (430, 120))
             else:
                 self.item_surf.blit(font.render(f'HP:???', 1, pygame.Color('red')), (430, 60))
                 self.item_surf.blit(font.render(f'ARMOR:???', 1, pygame.Color('red')), (430, 90))
                 self.item_surf.blit(font.render(f'ATTACK:???', 1, pygame.Color('red')), (430, 120))
+
+    # выход в меню и открытие настроек
     def click(self, pos):
         if self.menu_button.flag_click(pos):
             return 'Zastv'
         elif self.settings_button.flag_click(pos):
             return 'Settings'
 
+
+# Класс врага
 class Enemy:
     scorpion = load_image('scorpion.png', colorkey=-1)
     arahnid = load_image('arahnid.png', colorkey=-1)
@@ -237,7 +277,7 @@ class Enemy:
     def __init__(self, map, count, multiplier):
         cnt = 0
         self.enemy_spic = {}
-
+        # Случайная генерация врагов
         while cnt != count:
             x = rd.randint(1, len(map[0]) - 1)
             y = rd.randint(1, len(map) - 1)
@@ -257,10 +297,12 @@ class Enemy:
         return False
 
 
+# Класс битвы с противником
 class Battle:
     player = load_image('player.png', colorkey=-1)
     boss = load_image('boss.png', colorkey=-1)
     battle_floor = load_image('battle_floor.png', colorkey=None)
+
     def __init__(self, enemy, boss_flag):
         self.battle_field = Surface((1500, 750))
 
@@ -297,6 +339,8 @@ class Battle:
         self.laser_sound.set_volume(0.2)
         self.danger_sound = pygame.mixer.Sound('sounds/danger.mp3')
         self.danger_sound.set_volume(0.2)
+
+    # Движение игрока
     def player_move(self):
         a = pygame.key.get_pressed()
         if a[pygame.K_w] and self.y > 5:
@@ -308,6 +352,7 @@ class Battle:
         if a[pygame.K_d] and self.x < 1445:
             self.x += 10
 
+    # Случайное движение противника
     def enemy_move(self, boss_flag):
         if boss_flag:
             difference = 305
@@ -323,6 +368,7 @@ class Battle:
             self.en_y += 5 * self.en_y_vector
         self.steps -= 1
 
+    # Рендер битвы с противником
     def render(self, item_srf, player, boss_flag, music_flag):
         if boss_flag:
             hit_box = 300
@@ -331,7 +377,7 @@ class Battle:
         font = pygame.font.Font(None, 30)
         self.battle_field.blit(self.battle_floor, (0, 0))
         pygame.draw.rect(self.battle_field, 'white', (0, 0, 1500, 750), width=5)
-
+        # Рендер атаки босса
         if self.laser_pos:
             laser_srf = Surface((150, 740))
             laser_srf.set_alpha(160)
@@ -346,8 +392,8 @@ class Battle:
                     self.laser_sound.play(0)
                 if not self.is_laser_attack and (
                         pygame.Rect(self.laser_pos * 50 - 50, 0, 150, 740).collidepoint(self.x, self.y) or pygame.Rect(
-                        self.laser_pos * 50 - 50, 0, 150, 740).collidepoint(self.x + 50,
-                                                                            self.y)):
+                    self.laser_pos * 50 - 50, 0, 150, 740).collidepoint(self.x + 50,
+                                                                        self.y)):
                     self.is_laser_attack = True
                     if player[1] > 0:
                         player[1] -= self.en_attack
@@ -378,6 +424,7 @@ class Battle:
             self.x_vector, self.y_vetor])
         self.battle_field.blit(img, (self.x, self.y))
         self.battle_field.blit(self.enemy_img, (self.en_x, self.en_y))
+        # Проверка столкновений пуль с игроком и противником
         cnt = 0
         for i in self.shoots:
             pygame.draw.circle(self.battle_field, 'red',
@@ -403,6 +450,7 @@ class Battle:
                 self.shoots.pop(cnt)
             cnt += 1
         self.hp = player[0]
+        # Таймер задержек выстрелов
         if self.tick == 60:
             self.en_cooldown -= 1
             if self.laser_attack_time > 0 and self.danger_time == 0:
@@ -413,13 +461,13 @@ class Battle:
                     self.dng_color = (255, 128, 0)
                 else:
                     self.dng_color = (255, 90, 0)
+        # Отоброжение Характеристик персонажа и противника
         if self.cooldown > 0:
             item_srf.blit(font.render(f'COOLDOWN:{self.cooldown}', 1, pygame.Color('red')), (30, 150))
             if self.tick == 60:
                 self.cooldown -= 1
         else:
             item_srf.blit(font.render(f'COOLDOWN: READY', 1, pygame.Color('green')), (30, 150))
-
 
         item_srf.blit(font.render(f'HP:{self.en_hp}', 1, pygame.Color('red')), (430, 30))
         item_srf.blit(font.render(f'ARMOR:{self.en_armor}', 1, pygame.Color('red')), (430, 60))
@@ -428,6 +476,7 @@ class Battle:
             self.tick = 0
         self.tick += 1
 
+    # Выстрел игрока (его направлне, и внесение его в список выстрелов)
     def player_shot(self, pos, music_flag):
         if self.cooldown == 0:
             if music_flag:
@@ -445,6 +494,7 @@ class Battle:
             self.shoots.append([Vector2(self.x + rect_list[self.x_vector, self.y_vetor][0],
                                         self.y + rect_list[self.x_vector, self.y_vetor][1]), mouse_pos])
 
+    # Выстрел противника
     def enemy_shot(self, music_flag):
         if self.en_cooldown == 0:
             if music_flag:
@@ -455,6 +505,7 @@ class Battle:
                 for j in range(-1, 2, 2):
                     self.shoots.append([Vector2(en_center[0] + 25 * i, en_center[1] + 25 * j), Vector2(10 * i, 10 * j)])
 
+    # Выстркл босса
     def boss_shot(self):
         if self.en_cooldown == 0:
             self.en_cooldown = 10
@@ -463,8 +514,7 @@ class Battle:
             self.is_laser_attack = False
             self.laser_pos = rd.randint(1, 10)
 
-
-
+    # Окнчание битвы
     def end(self):
         if self.en_hp <= 0:
             return 1
@@ -472,24 +522,29 @@ class Battle:
             return -1
 
 
+# Класс пригрыша
 class Lose:
-    def __init__(self, screen):
+    def __init__(self, screen, music_flag):
         screen.fill((0, 0, 0))
-        self.lose_sound = pygame.mixer.Sound('sounds/lose.mp3')
-        self.lose_sound.set_volume(0.2)
-        self.lose_sound.play(0)
+        if music_flag:
+            self.lose_sound = pygame.mixer.Sound('sounds/lose.mp3')
+            self.lose_sound.set_volume(0.2)
+            self.lose_sound.play(0)
         font = pygame.font.Font(None, 100)
         screen.blit(font.render('Вы проиграли :(', 1, pygame.Color('red')), (500, 500))
         font = pygame.font.Font(None, 20)
         screen.blit(font.render('Нажмите на пробел для продлжения', 0, pygame.Color('grey')), (650, 600))
 
 
+# Класс победы над противником(не над боссом)
 class Win:
     def __init__(self, items, player, brd, music_flag):
+        # Случайный выбор награды и проигрывание звуков
         self.item = rd.choice(ITEMS)
-        self.win_sound = pygame.mixer.Sound('sounds/bonus.mp3')
-        self.win_sound.set_volume(0.2)
-        self.win_sound.play(0)
+        if music_flag:
+            self.win_sound = pygame.mixer.Sound('sounds/bonus.mp3')
+            self.win_sound.set_volume(0.2)
+            self.win_sound.play(0)
         if self.item == 'TOUCH' and 'TOUCH' not in items:
             self.text = 'Ваша вдимость увеличена на 1 клетку'
             items.append('TOUCH')
@@ -509,6 +564,7 @@ class Win:
         else:
             self.text = 'Это уже eсть у вас либо вы ничего не получили'
 
+    # Рендер окна победы
     def render(self, screen):
         screen.fill((0, 0, 0))
         font = pygame.font.Font(None, 50)
@@ -516,6 +572,8 @@ class Win:
         screen.blit(font.render(self.text, 0, pygame.Color('green')), (500, 550))
         screen.blit(font.render('Нажмите на пробел для продлжения', 0, pygame.Color('grey')), (500, 600))
 
+
+# Класс конца игры
 class End:
     def __init__(self, screen):
         screen.fill((0, 0, 0))
@@ -528,6 +586,7 @@ class End:
         screen.blit(font.render('Нажмите на пробел для продлжения', 0, pygame.Color('grey')), (650, 600))
 
 
+# Класс клетчатого игрового поля
 class Playing_field:
     # создание поля
     def __init__(self):
@@ -539,6 +598,7 @@ class Playing_field:
         self.y_pos = 1
         self.visibility = 1
 
+    # рендер левела
     def level_render(self, surf, map, enemies):
         wall = load_image("wall.png", colorkey=None)
         floor = load_image("floor.png", colorkey=None)
@@ -566,6 +626,7 @@ class Playing_field:
                     x_ps] == 'x':
                     self.plaing_surf.blit(exit_clt, (self.cletca * x_ps, self.cletca * y_ps))
 
+    # Отоброжение возможных клеток для ходьбы
     def focus_click(self, map):
         green = load_image('green.png', colorkey=-1)
         clt = self.cletca
@@ -579,6 +640,7 @@ class Playing_field:
             self.plaing_surf.blit(green, (self.x_pos * clt, (self.y_pos - 1) * clt))
         self.focus = True
 
+    # Перемещение
     def move(self, x, y, map):
         if x == self.x_pos and y == self.y_pos:
             self.focus = not (self.focus)
@@ -612,12 +674,16 @@ class Playing_field:
             else:
                 self.focus = False
 
+    # Смена карты
     def change_map(self, map):
         if map[self.y_pos][self.x_pos] == map[-2][-2]:
             return True
 
+
+# Класс регистрации
 class Login:
     background = load_image('background.png')
+
     def __init__(self):
         self.ok_button = Button(200, 100, (700, 500), (16, 124, 42), 'green')
         self.input_board = Button(1000, 100, (300, 350), 'grey', (80, 80, 80))
@@ -627,6 +693,7 @@ class Login:
         self.warning_flag = False
         self.text = ''
 
+    # Рендер окна регистрации
     def login_render(self, screen):
         font = pygame.font.Font(None, 100)
         screen.blit(self.background, (0, 0))
@@ -650,13 +717,15 @@ class Login:
         screen.blit(font.render('Введите имя до 16 символов', 1, pygame.Color('white')), (300, 220))
         screen.blit(font.render(f'Лучший счет: {self.score}', 1, pygame.Color('white')), (300, 620))
 
-
+    # Проверка на активность поля ввода
     def focus(self):
         if pygame.Rect(self.input_board.position[0], self.input_board.position[1], 1000, 100).collidepoint(
                 pygame.mouse.get_pos()):
             self.input_focus = True
         else:
             self.input_focus = False
+
+    # Ввод никнейма
     def login_input(self, event):
         allowd_symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'
             , 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
@@ -668,9 +737,10 @@ class Login:
                or event.unicode in allowd_special_symbols)):
             self.text += event.unicode
         elif event.unicode not in allowd_symbols and event.unicode not in list(map(lambda x: x.upper(),
-                allowd_symbols)) and event.unicode not in allowd_special_symbols:
+                                                    allowd_symbols)) and event.unicode not in allowd_special_symbols:
             self.warning_flag = True
 
+    # Регистрация в бд
     def registration(self):
         if self.ok_button.flag_click(pygame.mouse.get_pos()):
             self.score_table = sqlite3.connect("score.db")
@@ -683,6 +753,8 @@ class Login:
             self.cur.execute(f"INSERT INTO score_player(Player_name, Score) VALUES('{self.text}', 0)")
             self.score_table.commit()
             self.score_table.close()
+
+    # Сохранение результата
     def save_score(self, score):
         self.score_table = sqlite3.connect("score.db")
         self.cur = self.score_table.cursor()
@@ -696,6 +768,8 @@ class Login:
             print(self.text, self.score)
         self.score_table.commit()
         self.score_table.close()
+
+    # Возвращение в меню
     def back_to_menu(self):
         if self.back_button.flag_click(pygame.mouse.get_pos()):
             return 'Zastv'
